@@ -169,7 +169,8 @@
 
 (defun helm-css-scss--target-overlay-move (&optional $beg $end $buf)
   "Move target overlay."
-  (move-overlay helm-css-scss-overlay (or $beg (point-at-bol)) (or $end (point)) $buf)
+  (move-overlay helm-css-scss-overlay
+                (or $beg (line-beginning-position)) (or $end (point)) $buf)
   (helm-css-scss--unveil-invisible-overlay))
 
 (defun helm-css-scss-nthcar ($i $l)
@@ -265,7 +266,7 @@ This function needs to call after latest helm-css-scss-overlay set."
       (save-excursion
         (goto-char $p)
         (while (if $p (setq $p (re-search-forward (concat "^" $buf "$") nil t)))
-          (when (get-text-property (point-at-bol) 'helm-header)
+          (when (get-text-property (line-beginning-position) 'helm-header)
             (forward-char 1)
             (setq $bound (next-single-property-change (point) 'helm-header))
             (while (re-search-forward "^[0-9]+" $bound t)
@@ -515,7 +516,8 @@ If $noexcursion is not-nil cursor doesn't move."
   "Synchronizing position."
   (with-helm-window
     (let* (($key (helm-css-scss--trim-whitespace
-                  (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
+                  (buffer-substring-no-properties (line-beginning-position)
+                                                  (line-end-position))))
            ($cand (assoc-default 'candidates (helm-get-current-source)))
            ($prop (assoc-default $key $cand))
            ($buf helm-css-scss-target-buffer))
@@ -561,7 +563,8 @@ If $noexcursion is not-nil cursor doesn't move."
   (setq helm-css-scss-synchronizing-window (selected-window))
   (setq helm-css-scss-last-point (cons (point) (buffer-name (current-buffer))))
   (setq helm-css-scss-target-buffer (current-buffer))
-  (setq helm-css-scss-overlay (make-overlay (point-at-bol) (point-at-eol)))
+  (setq helm-css-scss-overlay (make-overlay (line-beginning-position)
+                                            (line-end-position)))
   (overlay-put helm-css-scss-overlay 'face 'helm-css-scss-target-line-face)
   (unless (boundp 'helm-css-scss-last-query)
     (set (make-local-variable 'helm-css-scss-last-query) "")))
@@ -656,7 +659,8 @@ If $noexcursion is not-nil cursor doesn't move."
   "Exec move line action."
   (with-helm-window
     (let* (($key (helm-css-scss--trim-whitespace
-                  (buffer-substring-no-properties (point-at-bol) (point-at-eol))))
+                  (buffer-substring-no-properties (line-beginning-position)
+                                                  (line-end-position))))
            ($source (helm-get-current-source))
            ($cand (assoc-default 'candidates $source))
            ($buf (get-buffer (assoc-default 'name $source)))
